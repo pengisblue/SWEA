@@ -5,23 +5,21 @@ T = int(input())
 for tc in range(1, T+1):
     day_price, month_price, quarter_price, year_price = map(int, input().split())
     plan = list(map(int, input().split()))
-    day = [plan[i] * day_price for i in range(12)]
-    month = [month_price if day[i] > month_price else day[i] for i in range(12)]
-    quarter = []
+    price = [plan[i] * day_price for i in range(12)]
+    prefix_sum = [0] * 12
     for i in range(12):
-        price_3month = sum(month[i:i+3])
-        if price_3month > quarter_price:
-            price_3month = quarter_price
-        quarter.append(price_3month)
-    year = []
-    for i in range(3):
-        price_year = sum(month[:i])
-        for j in range(i, 12, 3):
-            price_year += quarter[j]
-        year.append(price_year)
-    print(month)
-    print(quarter)
-    result = min(year)
-    if result > year_price:
-        result = year_price
-    print(f'#{tc}', result)
+        if price[i] > month_price:
+            price[i] = month_price
+
+    for i in range(12):
+        if i == 0:
+            prefix_sum[i] = min(price[i], quarter_price)
+        else:
+            sum_price = prefix_sum[i-1] + price[i]
+            if i < 3:
+                prefix_sum[i] = min(sum_price, quarter_price)
+            else:
+                new_price = prefix_sum[i-3] + quarter_price
+                prefix_sum[i] = min(sum_price, new_price)
+
+    print(f'#{tc}', min(prefix_sum[11], year_price))
